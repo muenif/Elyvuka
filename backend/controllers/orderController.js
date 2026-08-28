@@ -73,8 +73,8 @@ const createOrder = asyncHandler(async (req, res) => {
     )
   );
 
-  // Wait for both sends so a serverless request cannot end before SMTP accepts them.
-  await Promise.all([
+  // Do not make checkout wait for SMTP; the order is already saved and visible in the dashboard.
+  Promise.all([
     sendEmail({
       to: order.customer.email,
       subject: `Order confirmed - ${order.orderNumber}`,
@@ -85,7 +85,9 @@ const createOrder = asyncHandler(async (req, res) => {
       subject: `New order - ${order.orderNumber}`,
       html: adminNewOrderEmail(order),
     }),
-  ]);
+  ]).catch((error) => {
+    console.error(`Order email job failed: ${error.message}`);
+  });
 
   res.status(201).json({ success: true, data: order });
 });
