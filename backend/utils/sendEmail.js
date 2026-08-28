@@ -17,17 +17,24 @@ const transporter = nodemailer.createTransport({
  * @param {string} options.html
  */
 const sendEmail = async ({ to, subject, html }) => {
+  if (!to || !process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    console.error("Email send skipped: EMAIL_USER, EMAIL_PASS, and recipient are required");
+    return false;
+  }
+
   try {
-    await transporter.sendMail({
+    const info = await transporter.sendMail({
       from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
       to,
       subject,
       html,
     });
+    console.log(`Email accepted for delivery to ${to}: ${info.messageId}`);
+    return true;
   } catch (error) {
-    // Email failing should never block an order from being saved -
-    // we log it so the admin can still see/act on the order in the dashboard.
-    console.error(`Email send failed to ${to}: ${error.message}`);
+    console.error(`Email send failed to ${to}: ${error.code || "SMTP_ERROR"} ${error.message}`);
+    if (error.response) console.error(`SMTP response: ${error.response}`);
+    return false;
   }
 };
 

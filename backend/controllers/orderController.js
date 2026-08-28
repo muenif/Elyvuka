@@ -73,19 +73,19 @@ const createOrder = asyncHandler(async (req, res) => {
     )
   );
 
-  // Fire-and-forget emails - never block the order response on SMTP latency.
-  // Customer email is now a required field, so this always reaches the
-  // person who placed the order; the admin gets their own separate copy.
-  sendEmail({
-    to: order.customer.email,
-    subject: `Order confirmed - ${order.orderNumber}`,
-    html: customerConfirmationEmail(order),
-  });
-  sendEmail({
-    to: process.env.ADMIN_EMAIL,
-    subject: `New order - ${order.orderNumber}`,
-    html: adminNewOrderEmail(order),
-  });
+  // Wait for both sends so a serverless request cannot end before SMTP accepts them.
+  await Promise.all([
+    sendEmail({
+      to: order.customer.email,
+      subject: `Order confirmed - ${order.orderNumber}`,
+      html: customerConfirmationEmail(order),
+    }),
+    sendEmail({
+      to: process.env.ADMIN_EMAIL,
+      subject: `New order - ${order.orderNumber}`,
+      html: adminNewOrderEmail(order),
+    }),
+  ]);
 
   res.status(201).json({ success: true, data: order });
 });
