@@ -27,7 +27,6 @@ const createOrder = asyncHandler(async (req, res) => {
     throw new Error("Order must contain at least one item");
   }
 
-  // Re-fetch products server-side so price/stock can never be spoofed from the client.
   const productIds = items.map((i) => i.product);
   const products = await Product.find({ _id: { $in: productIds } });
 
@@ -66,26 +65,25 @@ const createOrder = asyncHandler(async (req, res) => {
     total,
   });
 
-  // Decrement stock now that the order is confirmed as placed.
   await Promise.all(
     orderItems.map((item) =>
       Product.findByIdAndUpdate(item.product, { $inc: { stock: -item.qty } })
     )
   );
 
-  // Wait for both sends so delivery completes before confirming the order.
-  await Promise.all([
-    sendEmail({
-      to: order.customer.email,
-      subject: `Order confirmed - ${order.orderNumber}`,
-      html: customerConfirmationEmail(order),
-    }),
-    sendEmail({
-      to: process.env.ADMIN_EMAIL,
-      subject: `New order - ${order.orderNumber}`,
-      html: adminNewOrderEmail(order),
-    }),
-  ]);
+  // Fire-and-forget emails - never block the order response on SMTP latency.
+  // A slow or failing mail server should never stall or break checkout for
+  // the customer; the order itself has already saved successfully above.
+  sendEmail({
+    to: order.customer.email,
+    subject: `Order confirmed - ${order.orderNumber}`,
+    html: customerConfirmationEmail(order),
+  });
+  sendEmail({
+    to: process.env.ADMIN_EMAIL,
+    subject: `New order - ${order.orderNumber}`,
+    html: adminNewOrderEmail(order),
+  });
 
   res.status(201).json({ success: true, data: order });
 });
