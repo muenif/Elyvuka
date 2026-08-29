@@ -272,20 +272,16 @@ h1,h2,h3{font-family:'Space Grotesk',sans-serif;color:var(--forest);margin:0;}
 .pd-gallery{flex:1;min-width:0;}
 .pd-main-img{background:#EAF0E7;border-radius:12px;height:340px;display:flex;align-items:center;justify-content:center;color:var(--mint-deep);position:relative;overflow:hidden;}
 
-/* Slideshow: the live gallery variant of .pd-main-img, sized explicitly
-   at every breakpoint so next/image's `fill` mode always has a real box
-   to fill (fill takes the element out of flow, so height can never be
-   "auto" here). Padding stays 0 — padding on a `fill` container pushes
-   the image behind the padding box and desyncs it from the absolutely
-   positioned arrows/dots overlaid on top. */
+/* Slideshow: the live gallery variant of .pd-main-img. Uses aspect-ratio
+   instead of a fixed height so the box scales proportionally with its
+   width at every breakpoint — a fixed short height (e.g. 340px on a
+   900px-wide column) forces object-fit:cover to crop product photos
+   into a thin, over-zoomed strip. aspect-ratio keeps the box height
+   tied to its width, so the full subject stays visible. */
 .slideshow-main{
-  height:340px;
-  padding:0;
-}
-@media (max-width:480px){
-  .slideshow-main{
-    height:220px;
-  }
+  aspect-ratio: 4 / 3;
+  height: auto;
+  padding: 0;
 }
 
 .pd-thumbs{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;}
