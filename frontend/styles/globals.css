@@ -208,8 +208,9 @@ h1,h2,h3{font-family:'Space Grotesk',sans-serif;color:var(--forest);margin:0;}
   .filters{display:none}
 }
 
+/* Empty-state icon box only (the 💻 fallback) — NOT the live slideshow */
 @media (max-width:480px){
-  .pd-main-img{height:auto;min-height:180px;padding:28px}
+  .pd-main-img:not(.slideshow-main){height:auto;min-height:180px;padding:28px}
   .card .thumb{height:88px}
   .card-title{font-size:14px}
 }
@@ -270,6 +271,23 @@ h1,h2,h3{font-family:'Space Grotesk',sans-serif;color:var(--forest);margin:0;}
 .pd-layout{display:flex;gap:34px;}
 .pd-gallery{flex:1;min-width:0;}
 .pd-main-img{background:#EAF0E7;border-radius:12px;height:340px;display:flex;align-items:center;justify-content:center;color:var(--mint-deep);position:relative;overflow:hidden;}
+
+/* Slideshow: the live gallery variant of .pd-main-img, sized explicitly
+   at every breakpoint so next/image's `fill` mode always has a real box
+   to fill (fill takes the element out of flow, so height can never be
+   "auto" here). Padding stays 0 — padding on a `fill` container pushes
+   the image behind the padding box and desyncs it from the absolutely
+   positioned arrows/dots overlaid on top. */
+.slideshow-main{
+  height:340px;
+  padding:0;
+}
+@media (max-width:480px){
+  .slideshow-main{
+    height:220px;
+  }
+}
+
 .pd-thumbs{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;}
 .pd-thumbs div{width:60px;height:60px;flex-shrink:0;background:#EAF0E7;border-radius:8px;border:1.5px solid var(--line);transition:border-color .15s;}
 .pd-thumbs div.active{border-color:var(--mint-deep);border-width:2px;}
