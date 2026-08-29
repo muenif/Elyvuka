@@ -114,6 +114,7 @@ export default function Header() {
             <Link href="/track" className={router.pathname === "/track" ? "nav-link active" : "nav-link"}>
               Track order
             </Link>
+            <a href="tel:0737766052" className="nav-link">For more info: 0737766052</a>
           </nav>
         </div>
         <div className="nav-actions">
@@ -177,10 +178,7 @@ export default function Header() {
           <Link href="/listing" className="nav-link" onClick={() => setMenuOpen(false)}>Laptops</Link>
           <Link href="/track" className="nav-link" onClick={() => setMenuOpen(false)}>Track order</Link>
           <Link href="/checkout" className="nav-link" onClick={() => setMenuOpen(false)}>Cart</Link>
-          <Link href="/track" className={router.pathname === "/track" ? "nav-link active" : "nav-link"}>
-  Track order
-</Link>
-<a href="tel:0737766052" className="nav-link">For more info: 0737766052</a>
+          <a href="tel:0737766052" className="nav-link" onClick={() => setMenuOpen(false)}>For more info: 0737766052</a>
         </nav>
       </div>
     </header>
