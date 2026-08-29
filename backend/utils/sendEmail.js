@@ -1,17 +1,14 @@
-const nodemailer = require("nodemailer");
+const BREVO_API_URL = "https://api.brevo.com/v3/smtp/email";
 
-const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST,
-  port: Number(process.env.EMAIL_PORT) || 587,
-  secure: Number(process.env.EMAIL_PORT) === 465,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-  connectionTimeout: 10000,
-  greetingTimeout: 10000,
-  socketTimeout: 10000,
-});
+// Parses "Name <email@example.com>" into { name, email }. Falls back to
+// treating the whole string as the email if it's not in that format.
+const parseFromAddress = (fromString) => {
+  const match = fromString?.match(/^(.*?)<(.+)>$/);
+  if (match) {
+    return { name: match[1].trim().replace(/^"|"$/g, ""), email: match[2].trim() };
+  }
+  return { name: "ELYVUKA", email: fromString };
+};
 
 /**
  * @param {Object} options
@@ -20,24 +17,37 @@ const transporter = nodemailer.createTransport({
  * @param {string} options.html
  */
 const sendEmail = async ({ to, subject, html }) => {
-  if (!to || !process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-    console.error("Email send skipped: EMAIL_USER, EMAIL_PASS, and recipient are required");
-    return false;
+  if (!process.env.BREVO_API_KEY) {
+    console.error(`Email not sent to ${to}: BREVO_API_KEY is not set`);
+    return;
   }
 
+  const sender = parseFromAddress(process.env.EMAIL_FROM || process.env.ADMIN_EMAIL);
+
   try {
-    const info = await transporter.sendMail({
-      from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
-      to,
-      subject,
-      html,
+    const res = await fetch(BREVO_API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        "api-key": process.env.BREVO_API_KEY,
+      },
+      body: JSON.stringify({
+        sender,
+        to: [{ email: to }],
+        subject,
+        htmlContent: html,
+      }),
     });
-    console.log(`Email accepted for delivery to ${to}: ${info.messageId}`);
-    return true;
+
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      throw new Error(body.message || `Brevo API returned ${res.status}`);
+    }
   } catch (error) {
-    console.error(`Email send failed to ${to}: ${error.code || "SMTP_ERROR"} ${error.message}`);
-    if (error.response) console.error(`SMTP response: ${error.response}`);
-    return false;
+    // Email failing should never block an order from being saved -
+    // we log it so the admin can still see/act on the order in the dashboard.
+    console.error(`Email send failed to ${to}: ${error.message}`);
   }
 };
 
