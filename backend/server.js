@@ -17,6 +17,13 @@ connectDB();
 
 const app = express();
 
+// Render (and most PaaS hosts) sit the app behind a reverse proxy, which
+// sets X-Forwarded-For to the real client IP. Without this, Express doesn't
+// trust that header, and express-rate-limit can't reliably identify who's
+// making requests - it throws on every request to the order-placement
+// endpoint specifically, since that's the only route with a rate limiter.
+app.set("trust proxy", 1);
+
 const allowedOrigins = (process.env.CLIENT_URLS || process.env.CLIENT_URL || "")
   .split(",")
   .map((origin) => origin.trim().replace(/\/$/, ""))
