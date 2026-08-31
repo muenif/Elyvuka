@@ -97,6 +97,16 @@ export default function Home({ initialProducts, initialCategories, loadError }) 
             <ProductCard key={p._id} product={p} priority={i < 4} />
           ))}
         </div>
+
+        {!loadError && initialProducts.length > 0 && (
+          <div style={{ display: "flex", justifyContent: "center", marginTop: 18, marginBottom: 8 }}>
+            <Link href="/listing">
+              <button className="btn-ghost" style={{ padding: "10px 18px", fontSize: 12, borderColor: "var(--line)" }}>
+                See more
+              </button>
+            </Link>
+          </div>
+        )}
       </section>
     </Layout>
   );
