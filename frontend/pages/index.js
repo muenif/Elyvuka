@@ -101,7 +101,17 @@ export default function Home({ initialProducts, initialCategories, loadError }) 
         {!loadError && initialProducts.length > 0 && (
           <div style={{ display: "flex", justifyContent: "center", marginTop: 18, marginBottom: 8 }}>
             <Link href="/listing">
-              <button className="btn-ghost" style={{ padding: "10px 18px", fontSize: 12, borderColor: "var(--line)" }}>
+              <button
+                className="btn-primary"
+                style={{
+                  padding: "10px 18px",
+                  fontSize: 12,
+                  background: "var(--forest)",
+                  color: "#fff",
+                  border: "none",
+                  boxShadow: "0 8px 20px rgba(18, 60, 48, 0.22)",
+                }}
+              >
                 See more
               </button>
             </Link>
