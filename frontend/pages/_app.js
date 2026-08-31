@@ -10,7 +10,8 @@ export default function App({ Component, pageProps }) {
     <>
       <Head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>ELYVUKA</title>
+        <meta name="application-name" content="ELYVUKA" />
+        <meta name="description" content="ELYVUKA sells laptops and tech essentials across Kenya with easy ordering and cash-on-delivery checkout." />
       </Head>
       <ToastProvider>
         <CartProvider>

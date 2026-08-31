@@ -1,6 +1,8 @@
+import Link from "next/link";
 import { useRouter } from "next/router";
 import Layout from "../../components/Layout";
 import ImageSlideshow from "../../components/ImageSlideshow";
+import SEO from "../../components/SEO";
 import { getProduct } from "../../services/productService";
 import { useCart } from "../../context/CartContext";
 import { useToast } from "../../context/ToastContext";
@@ -52,11 +54,53 @@ export default function ProductPage({ product }) {
 
   const inStock = product.stock > 0;
   const specEntries = Object.entries(product.specs || {}).filter(([, v]) => v);
+  const productStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    brand: {
+      "@type": "Brand",
+      name: product.brand || "ELYVUKA",
+    },
+    category: product.category?.name || "Laptops",
+    description: product.description || `${product.name} laptop available in Kenya with pay-on-delivery checkout.`,
+    sku: product.sku || undefined,
+    offers: {
+      "@type": "Offer",
+      priceCurrency: "KES",
+      price: product.price,
+      availability: inStock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+      url: `https://elyvukastore.com/product/${product.slug}`,
+      seller: {
+        "@type": "Organization",
+        name: "ELYVUKA",
+      },
+    },
+    image: (product.images || []).map((img) => img.url),
+  };
+
+  const listingHref = product.category?._id ? `/listing?category=${product.category._id}` : "/listing";
 
   return (
     <Layout>
+      <SEO
+        title={product.name}
+        description={product.description || `${product.name} available in Kenya with flexible pay-on-delivery options.`}
+        canonicalPath={`/product/${product.slug}`}
+        image={product.images?.[0]?.url}
+        type="product"
+        structuredData={productStructuredData}
+      />
       <div className="section">
-        <div className="breadcrumb">Home / {product.category?.name || "Laptops"} / {product.name}</div>
+        <nav aria-label="Breadcrumb" style={{ marginBottom: 10 }}>
+          <ol style={{ display: "flex", flexWrap: "wrap", listStyle: "none", padding: 0, margin: 0, gap: 8, color: "var(--ink-soft)", fontSize: 12 }}>
+            <li><Link href="/" style={{ color: "inherit", textDecoration: "none" }}>Home</Link></li>
+            <li> / </li>
+            <li><Link href={listingHref} style={{ color: "inherit", textDecoration: "none" }}>{product.category?.name || "Laptops"}</Link></li>
+            <li> / </li>
+            <li aria-current="page">{product.name}</li>
+          </ol>
+        </nav>
         <div className="pd-layout">
           <ImageSlideshow images={product.images || []} alt={product.name} />
           <div className="pd-buy">

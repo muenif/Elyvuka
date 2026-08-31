@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import Layout from "../components/Layout";
 import ProductCard from "../components/ProductCard";
 import Pagination from "../components/Pagination";
 import EmptyState from "../components/EmptyState";
+import SEO from "../components/SEO";
 import { getProducts } from "../services/productService";
 import { getCategories } from "../services/categoryService";
 
@@ -68,10 +70,27 @@ export default function Listing() {
     );
   };
 
+  const currentCategory = categories.find((c) => c._id === category)?.name;
+  const seoTitle = currentCategory ? `${currentCategory} Laptops in Kenya` : "Laptops in Kenya";
+  const seoDescription = currentCategory
+    ? `Browse ${currentCategory} laptops in Kenya with competitive prices, trusted delivery, and pay-on-delivery checkout.`
+    : "Browse laptops, business notebooks, and gaming devices in Kenya with fast delivery and pay-on-delivery checkout.";
+
   return (
     <Layout>
+      <SEO
+        title={seoTitle}
+        description={seoDescription}
+        canonicalPath="/listing"
+      />
       <section className="section">
-        <div className="breadcrumb">Home / Laptops</div>
+        <nav aria-label="Breadcrumb" style={{ marginBottom: 10 }}>
+          <ol style={{ display: "flex", flexWrap: "wrap", listStyle: "none", padding: 0, margin: 0, gap: 8, color: "var(--ink-soft)", fontSize: 12 }}>
+            <li><Link href="/" style={{ color: "inherit", textDecoration: "none" }}>Home</Link></li>
+            <li> / </li>
+            <li aria-current="page">Laptops</li>
+          </ol>
+        </nav>
         <h1 style={{ fontSize: 22 }}>
           Laptops{" "}
           <span style={{ color: "var(--ink-faint)", fontSize: 13, fontWeight: 400 }}>

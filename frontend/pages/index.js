@@ -2,6 +2,7 @@ import Link from "next/link";
 import Layout from "../components/Layout";
 import ProductCard from "../components/ProductCard";
 import EmptyState from "../components/EmptyState";
+import SEO from "../components/SEO";
 import { getRandomProducts } from "../services/productService";
 import { getCategories } from "../services/categoryService";
 
@@ -27,8 +28,27 @@ export async function getStaticProps() {
 }
 
 export default function Home({ initialProducts, initialCategories, loadError }) {
+  const homeStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "Store",
+    name: "ELYVUKA",
+    description:
+      "Shop laptops and tech essentials in Kenya with cash-on-delivery and quick order fulfillment.",
+    url: "https://elyvukastore.com/",
+    image: "https://elyvukastore.com/og-image.svg",
+    areaServed: "Kenya",
+    sameAs: [],
+    priceRange: "KSh 20000-200000",
+  };
+
   return (
     <Layout>
+      <SEO
+        title="Buy Laptops in Kenya"
+        description="Shop affordable laptops, gaming PCs, and tech accessories in Kenya with pay-on-delivery convenience."
+        canonicalPath="/"
+        structuredData={homeStructuredData}
+      />
       <section className="section">
         <div className="hero">
           <div>
@@ -50,7 +70,12 @@ export default function Home({ initialProducts, initialCategories, loadError }) 
           </div>
         )}
 
-        <h2 style={{ fontSize: 17, marginTop: 30 }}>Popular right now</h2>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginTop: 30, marginBottom: 12, flexWrap: "wrap" }}>
+          <h2 style={{ fontSize: 17, margin: 0 }}>Popular right now</h2>
+          <Link href="/listing" style={{ color: "var(--forest)", fontWeight: 600, textDecoration: "none" }}>
+            Browse all laptops →
+          </Link>
+        </div>
 
         {loadError && (
           <EmptyState
